@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Love Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            overflow: hidden;
+        }
+
+        .balloon {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            animation: float 8s infinite, sway 4s ease-in-out infinite;
+            cursor: pointer;
+            transform-origin: bottom center;
+        }
+
+        .balloon-body {
+            position: relative;
+            width: 100%;
+            height: 80%;
+            background: currentColor;
+            border-radius: 80% 80% 70% 70%;
+            clip-path: ellipse(40% 50% at 50% 50%);
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1);
+        }
+
+        .balloon-string {
+            position: absolute;
+            bottom: -20%;
+            left: 50%;
+            width: 2px;
+            height: 40px;
+            background: #666;
+            transform: rotate(-2deg);
+        }
+
+        .memory-img {
+            position: absolute;
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s, zoomIn 0.5s;
+        }
+
+        .love-letter {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 30px;
+            background: url('https://img.freepik.com/free-photo/old-brown-paper-texture-background_1373-431.jpg') center/cover;
+            font-family: 'Great Vibes', cursive;
+            font-size: 24px;
+            line-height: 1.6;
+            max-width: 500px;
+            display: none;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 30px;
+            color: #ff3366;
+            animation: heartFloat 3s infinite;
+        }
+
+        .header-text {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+            font-size: 36px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(-5deg); }
+            100% { transform: translateY(-100vh) rotate(5deg); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(20px); }
+        }
+
+        @keyframes burst {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); }
+            to { transform: scale(1); }
+        }
+
+        @keyframes heartFloat {
+            0%, 100% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-20px); opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-text">Pop the balloons to see the memories till now.</div>
+    <div id="balloon-container"></div>
+    <div class="love-letter" id="loveLetter">
+        <div style="text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 20px;">❤️ To My Forever Love ❤️</div>
+            "It's been a long time since we first met,<br>
+            From fighting to loving and loving to fight,<br>
+            Maybe it's destiny that we're together.<br>
+            Through all the ups and downs,<br>
+            You remain my always and forever."
+            
+            <div style="margin-top: 20px; font-size: 28px;">Yours Eternally,<br>[Your Name]</div>
+        </div>
+        <div class="heart" style="top: -15px; left: -15px;">❤</div>
+        <div class="heart" style="top: -15px; right: -15px;">❤</div>
+        <div class="heart" style="bottom: -15px; left: -15px;">❤</div>
+        <div class="heart" style="bottom: -15px; right: -15px;">❤</div>
+    </div>
+
+    <script>
+        // Create love balloons
+        const balloonContainer = document.getElementById('balloon-container');
+        const balloonCount = 10; // Total 10 balloons
+        const imagePaths = [
+            'memory1.JPG',
+            'memory2.JPG',
+            'memory3.JPG',
+            'memory4.JPG',
+            'memory5.jpg',
+            'memory6.JPG',
+            'memory7.jpg',
+            'memory8.PNG',
+            'memory9.JPG',
+            'memory10.jpg'
+        ]; // Add your image paths
+
+        const balloonColors = ['#ff4081', '#ff6d00', '#d500f9', '#3d5afe', '#00e676'];
+        let burstCount = 0;
+        const usedPositions = [];
+
+        function getRandomPosition() {
+            let position;
+            do {
+                position = {
+                    left: Math.random() * 80 + 10 + 'vw', // Ensure balloons are not too close to the edges
+                    top: Math.random() * 80 + 10 + 'vh'  // Ensure balloons are not too close to the edges
+                };
+            } while (usedPositions.some(pos => Math.abs(parseFloat(pos.left) - parseFloat(position.left)) < 10 && Math.abs(parseFloat(pos.top) - parseFloat(position.top)) < 10));
+            usedPositions.push(position);
+            return position;
+        }
+
+        for (let i = 0; i < balloonCount; i++) {
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            const position = getRandomPosition();
+            balloon.style.left = position.left;
+            balloon.style.top = position.top;
+            balloon.style.animationDelay = Math.random() * 2 + 's';
+            
+            const balloonBody = document.createElement('div');
+            balloonBody.className = 'balloon-body';
+            balloonBody.style.color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+            
+            const balloonString = document.createElement('div');
+            balloonString.className = 'balloon-string';
+
+            balloon.appendChild(balloonBody);
+            balloon.appendChild(balloonString);
+            
+            balloon.onclick = function() {
+                // Burst animation
+                balloon.style.animation = 'burst 0.5s forwards';
+                
+                // Show memory image after burst
+                setTimeout(() => {
+                    const img = document.createElement('img');
+                    img.className = 'memory-img';
+                    img.src = imagePaths[Math.floor(Math.random() * imagePaths.length)];
+                    img.style.left = balloon.style.left;
+                    img.style.top = balloon.offsetTop + 'px';
+                    document.body.appendChild(img);
+                    
+                    balloon.remove();
+                    burstCount++;
+                    if (burstCount === balloonCount) {
+                        document.getElementById('loveLetter').style.display = 'block';
+                        
+                        // Add floating hearts
+                        setInterval(() => {
+                            const heart = document.createElement('div');
+                            heart.className = 'heart';
+                            heart.style.left = Math.random() * 95 + 'vw';
+                            heart.style.animationDuration = Math.random() * 2 + 2 + 's';
+                            heart.textContent = '❤';
+                            document.body.appendChild(heart);
+                            
+                            setTimeout(() => heart.remove(), 3000);
+                        }, 500);
+                    }
+                }, 300);
+            };
+            
+            balloonContainer.appendChild(balloon);
+        }
+    </script>
+</body>
+</html>

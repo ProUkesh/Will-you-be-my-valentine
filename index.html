@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <style>
+        /* Added container styling */
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Added button container styling */
+        .buttons {
+            position: relative;
+            min-height: 50px;
+            margin: 20px 0;
+        }
+
+        /* Added button base styling */
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 0 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .yes-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .no-button {
+            background-color: #f44336;
+            color: white;
+            position: static;
+        }
+
+        .heart-symbol {
+            position: absolute;
+            font-size: 50px;
+            color: red;
+            animation: float 5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1; /* Moved behind content */
+        }
+
+        .gif_container {
+            margin-top: 20px;
+        }
+
+        #main-gif {
+            max-width: 300px;
+            height: auto;
+        }
+
+        .fade-out {
+            animation: fadeOut 1s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Will you be my Valentine?</h1>
+        <div class="buttons">
+            <button class="yes-button" onclick="handleYesClick()">Yes</button>
+            <button class="no-button" onclick="handleNoClick()">No</button>
+        </div>
+        <div class="gif_container">
+            <img id="main-gif" src="willyou.png" alt="Cute GIF">
+        </div>
+    </div>
+    <canvas id="fireworks" class="fireworks"></canvas>
+    <script>
+        // Heart animation code
+        function createHeartSymbol() {
+            const heartSymbol = document.createElement('div');
+            heartSymbol.classList.add('heart-symbol');
+            heartSymbol.innerHTML = '&#10084;';
+            heartSymbol.style.left = Math.random() * 100 + 'vw';
+            heartSymbol.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.body.appendChild(heartSymbol);
+
+            setTimeout(() => heartSymbol.remove(), 1000);
+        }
+        setInterval(createHeartSymbol, 300);
+
+        // No button functionality
+        const messages = ["Are you sure?", "Please reconsider!", "Don't break my heart!"];
+        let messageIndex = 0;
+
+        function handleNoClick() {
+            document.getElementById('main-gif').src = 'cry.png';
+            const noButton = document.querySelector('.no-button');
+            const container = document.querySelector('.buttons');
+            
+            // Update button text
+            noButton.textContent = messages[messageIndex];
+            messageIndex = (messageIndex + 1) % messages.length;
+            
+            // Move button randomly within container
+            const maxX = container.offsetWidth - noButton.offsetWidth;
+            const maxY = container.offsetHeight - noButton.offsetHeight;
+            noButton.style.position = 'absolute';
+            noButton.style.left = Math.random() * maxX + 'px';
+            noButton.style.top = Math.random() * maxY + 'px';
+        }
+
+        // Yes button functionality
+        function handleYesClick() {
+            startFireworks();
+            document.body.classList.add('fade-out');
+            setTimeout(() => window.location.href = "./yes_page.html", 1000);
+        }
+
+        // Fireworks animation
+        function startFireworks() {
+            const canvas = document.getElementById('fireworks');
+            const ctx = canvas.getContext('2d');
+            
+            // Handle window resize
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const particles = [];
+            const colors = ['#ff0000', '#ff8000', '#ffff00', '#80ff00', 
+                          '#00ff80', '#00ffff', '#0080ff', '#8000ff', '#ff00ff'];
+
+            // Fireworks animation loop
+            function createParticle(x, y) {
+                return {
+                    x, y,
+                    size: Math.random() * 5 + 2,
+                    speedX: Math.random() * 6 - 3,
+                    speedY: Math.random() * 6 - 3,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 100
+                };
+            }
+
+            function updateParticles() {
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.life--;
+                    if (p.life <= 0) particles.splice(i, 1);
+                }
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                });
+            }
+
+            function animate() {
+                updateParticles();
+                drawParticles();
+                requestAnimationFrame(animate);
+            }
+
+            // Create continuous fireworks
+            const fireworksInterval = setInterval(() => {
+                for (let i = 0; i < 50; i++) {
+                    particles.push(createParticle(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height
+                    ));
+                }
+            }, 200);
+
+            // Stop fireworks after 1 second
+            setTimeout(() => {
+                clearInterval(fireworksInterval);
+                window.removeEventListener('resize', resizeCanvas);
+            }, 1000);
+
+            animate();
+        }
+    </script>
+</body>
+</html>
