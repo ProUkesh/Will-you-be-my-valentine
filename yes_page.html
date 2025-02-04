@@ -63,6 +63,8 @@
             line-height: 1.6;
             max-width: 500px;
             display: none;
+            opacity: 0;
+            transition: opacity 2s;
             box-shadow: 0 0 30px rgba(0,0,0,0.3);
             border-radius: 10px;
             z-index: 1000;
@@ -118,7 +120,7 @@
     </style>
 </head>
 <body>
-    <div class="header-text">Pop the balloons to see the memories till now.</div>
+    <div class="header-text">Pop the balloon to see the memories till now.</div>
     <div id="balloon-container"></div>
     <div class="love-letter" id="loveLetter">
         <div style="text-align: center;">
@@ -129,7 +131,7 @@
             Through all the ups and downs,<br>
             You remain my always and forever."
             
-            <div style="margin-top: 20px; font-size: 28px;">Yours Eternally,<br>[Your Name]</div>
+            <div style="margin-top: 20px; font-size: 28px;">Yours Eternally,<br>Ukesh</div>
         </div>
         <div class="heart" style="top: -15px; left: -15px;">❤</div>
         <div class="heart" style="top: -15px; right: -15px;">❤</div>
@@ -138,9 +140,8 @@
     </div>
 
     <script>
-        // Create love balloons
+        // Create love balloon
         const balloonContainer = document.getElementById('balloon-container');
-        const balloonCount = 10; // Total 10 balloons
         const imagePaths = [
             'memory1.JPG',
             'memory2.JPG',
@@ -155,74 +156,49 @@
         ]; // Add your image paths
 
         const balloonColors = ['#ff4081', '#ff6d00', '#d500f9', '#3d5afe', '#00e676'];
-        let burstCount = 0;
-        const usedPositions = [];
 
-        function getRandomPosition() {
-            let position;
-            do {
-                position = {
-                    left: Math.random() * 80 + 10 + 'vw', // Ensure balloons are not too close to the edges
-                    top: Math.random() * 80 + 10 + 'vh'  // Ensure balloons are not too close to the edges
-                };
-            } while (usedPositions.some(pos => Math.abs(parseFloat(pos.left) - parseFloat(position.left)) < 10 && Math.abs(parseFloat(pos.top) - parseFloat(position.top)) < 10));
-            usedPositions.push(position);
-            return position;
-        }
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        balloon.style.left = '50vw';
+        balloon.style.top = '50vh';
+        balloon.style.transform = 'translate(-50%, -50%)';
+        balloon.style.animationDelay = '0s';
+        
+        const balloonBody = document.createElement('div');
+        balloonBody.className = 'balloon-body';
+        balloonBody.style.color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        
+        const balloonString = document.createElement('div');
+        balloonString.className = 'balloon-string';
 
-        for (let i = 0; i < balloonCount; i++) {
-            const balloon = document.createElement('div');
-            balloon.className = 'balloon';
-            const position = getRandomPosition();
-            balloon.style.left = position.left;
-            balloon.style.top = position.top;
-            balloon.style.animationDelay = Math.random() * 2 + 's';
+        balloon.appendChild(balloonBody);
+        balloon.appendChild(balloonString);
+        
+        balloon.onclick = function() {
+            // Burst animation
+            balloon.style.animation = 'burst 0.5s forwards';
             
-            const balloonBody = document.createElement('div');
-            balloonBody.className = 'balloon-body';
-            balloonBody.style.color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
-            
-            const balloonString = document.createElement('div');
-            balloonString.className = 'balloon-string';
-
-            balloon.appendChild(balloonBody);
-            balloon.appendChild(balloonString);
-            
-            balloon.onclick = function() {
-                // Burst animation
-                balloon.style.animation = 'burst 0.5s forwards';
-                
-                // Show memory image after burst
-                setTimeout(() => {
+            // Show memory images after burst
+            setTimeout(() => {
+                imagePaths.forEach((path, index) => {
                     const img = document.createElement('img');
                     img.className = 'memory-img';
-                    img.src = imagePaths[Math.floor(Math.random() * imagePaths.length)];
-                    img.style.left = balloon.style.left;
-                    img.style.top = balloon.offsetTop + 'px';
+                    img.src = path;
+                    img.style.left = Math.random() * 80 + 10 + 'vw';
+                    img.style.top = Math.random() * 80 + 10 + 'vh';
                     document.body.appendChild(img);
-                    
-                    balloon.remove();
-                    burstCount++;
-                    if (burstCount === balloonCount) {
-                        document.getElementById('loveLetter').style.display = 'block';
-                        
-                        // Add floating hearts
-                        setInterval(() => {
-                            const heart = document.createElement('div');
-                            heart.className = 'heart';
-                            heart.style.left = Math.random() * 95 + 'vw';
-                            heart.style.animationDuration = Math.random() * 2 + 2 + 's';
-                            heart.textContent = '❤';
-                            document.body.appendChild(heart);
-                            
-                            setTimeout(() => heart.remove(), 3000);
-                        }, 500);
-                    }
-                }, 300);
-            };
-            
-            balloonContainer.appendChild(balloon);
-        }
+                });
+                
+                balloon.remove();
+                const loveLetter = document.getElementById('loveLetter');
+                loveLetter.style.display = 'block';
+                setTimeout(() => {
+                    loveLetter.style.opacity = 1;
+                }, 500);
+            }, 300);
+        };
+        
+        balloonContainer.appendChild(balloon);
     </script>
 </body>
 </html>
